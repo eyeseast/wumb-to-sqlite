@@ -47,7 +47,7 @@ def save_playlists(database, table, date=None, since=None, until=None, delay=1):
     if not isinstance(database, Database):
         database = Database(database)
 
-    table = database[table]
+    table = database.table(table, extracts={"artist": "artists"})
 
     for date in dates:
         click.echo(f"Downloading playlist for {date}")
