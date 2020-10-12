@@ -23,37 +23,6 @@ TIME_FORMAT = "%I:%M %p"  # 11:56 pm
 CACHE = Path.home() / ".wumb-to-sqlite"
 
 
-def playlist(db, table="playlist", *, date=None, since=None, until=None, delay=1):
-    """
-    Download daily playlists, for a date or a range
-    """
-
-    if not any([date, since, until]):
-        dates = [datetime.date.today()]
-
-    elif date:
-        dates = [date]
-
-    elif since and until:
-        dates = day_range(since, until)
-
-    elif since or until:
-        raise ValueError(
-            "Invalid dates. Please provide either a single date, or both since and until arguments."
-        )
-
-    if not isinstance(db, Database):
-        db = Database(db)
-
-    table = db[table]
-
-    for date in dates:
-        songs = scrape(date)
-        table.upsert_all(songs, pk="time")
-        if len(dates) > 1:  # no need to delay a single download
-            time.sleep(delay)
-
-
 # _html is used for testing
 def scrape(date, refresh=False, _html=None):
     """
@@ -88,6 +57,10 @@ def fetch(date, refresh=False):
     if date > datetime.date.today():
         raise ValueError(f"{date} is in the future")
     datestring = date.strftime(DATE_FORMAT)
+
+    if not CACHE.exists():
+        CACHE.mkdir()
+
     cache = CACHE / f"{datestring}.html"
 
     if cache.exists() and not refresh:
