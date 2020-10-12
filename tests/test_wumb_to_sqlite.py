@@ -34,7 +34,7 @@ def test_scrape_date(page):
     playlist = scrape(date, _html=page)
     playlist = list(playlist)
 
-    assert len(playlist) == 261
+    assert len(playlist) == 258
 
     song = playlist[0]
 
