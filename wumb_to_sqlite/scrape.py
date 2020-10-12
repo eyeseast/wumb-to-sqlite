@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 
 import httpx
+import pytz
 from bs4 import BeautifulSoup
 from sqlite_utils import Database
 
@@ -21,6 +22,7 @@ BASE_URL = "http://wumb.org/cgi-bin/playlist1.pl"
 DATE_FORMAT = "%y%m%d"  # http://wumb.org/cgi-bin/playlist1.pl?date=201010
 TIME_FORMAT = "%I:%M %p"  # 11:56 pm
 CACHE = Path.home() / ".wumb-to-sqlite"
+TIMEZONE = pytz.timezone("US/Eastern")  # WUMB is in Boston
 
 
 # _html is used for testing
@@ -40,11 +42,19 @@ def scrape(date, refresh=False, _html=None):
             table.find("font", size="-1").string.strip(), TIME_FORMAT
         ).time()
 
+        if not all([artist, title]):
+            continue
+
         yield {
             "artist": artist,
             "title": title,
             "time": datetime.datetime(
-                date.year, date.month, date.day, playtime.hour, playtime.minute
+                date.year,
+                date.month,
+                date.day,
+                playtime.hour,
+                playtime.minute,
+                tzinfo=TIMEZONE,
             ),
         }
 
@@ -54,6 +64,9 @@ def fetch(date, refresh=False):
     Download a playlist page for a given date, using the cache if possible, unless refresh,
     and return the HTML of the page.
     """
+    if isinstance(date, datetime.datetime):
+        date = date.date()
+
     if date > datetime.date.today():
         raise ValueError(f"{date} is in the future")
     datestring = date.strftime(DATE_FORMAT)

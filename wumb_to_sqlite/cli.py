@@ -24,8 +24,11 @@ def cli():
 @click.option("--date", type=click.DateTime(formats))
 @click.option("--since", type=click.DateTime(formats))
 @click.option("--until", type=click.DateTime(formats))
-@click.option("--delay", type=click.INT, default=1)
-def save_playlists(database, table, date=None, since=None, until=None, delay=1):
+@click.option("--delay", type=click.INT, default=1, show_default=True)
+@click.option("--refresh", type=click.BOOL, default=False)
+def save_playlists(
+    database, table, date=None, since=None, until=None, delay=1, refresh=False
+):
     """
     Download daily playlists, for a date or a range
     """
@@ -34,10 +37,10 @@ def save_playlists(database, table, date=None, since=None, until=None, delay=1):
         dates = [datetime.date.today()]
 
     elif date:
-        dates = [date]
+        dates = [date.date()]
 
     elif since and until:
-        dates = day_range(since, until)
+        dates = list(day_range(since.date(), until.date()))
 
     elif since or until:
         raise ValueError(
@@ -51,7 +54,7 @@ def save_playlists(database, table, date=None, since=None, until=None, delay=1):
 
     for date in dates:
         click.echo(f"Downloading playlist for {date}")
-        songs = scrape(date)
+        songs = scrape(date, refresh)
         table.upsert_all(songs, pk="time")
         if len(dates) > 1:  # no need to delay a single download
             time.sleep(delay)

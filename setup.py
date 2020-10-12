@@ -31,7 +31,7 @@ setup(
         [console_scripts]
         wumb-to-sqlite=wumb_to_sqlite.cli:cli
     """,
-    install_requires=["click", "beautifulsoup4", "httpx", "sqlite-utils"],
+    install_requires=["click", "beautifulsoup4", "httpx", "pytz", "sqlite-utils"],
     extras_require={"test": ["pytest"]},
     tests_require=["wumb-to-sqlite[test]"],
 )
