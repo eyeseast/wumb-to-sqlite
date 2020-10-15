@@ -6,6 +6,8 @@ __pycache__/
 *$py.class
 .eggs
 *.egg-info
+build/
+dist/
 .DS_Store
 .vscode
 *.db
