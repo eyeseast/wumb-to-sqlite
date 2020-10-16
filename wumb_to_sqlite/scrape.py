@@ -3,6 +3,7 @@ Python API for scraping WUMB Playlists
 """
 import datetime
 import os
+import re
 import time
 from pathlib import Path
 
@@ -23,6 +24,7 @@ DATE_FORMAT = "%y%m%d"  # http://wumb.org/cgi-bin/playlist1.pl?date=201010
 TIME_FORMAT = "%I:%M %p"  # 11:56 pm
 CACHE = Path.home() / ".wumb-to-sqlite"
 TIMEZONE = pytz.timezone("US/Eastern")  # WUMB is in Boston
+ALBUM_RE = re.compile(r"(.+)\s\(from\s(.+)\)")
 
 
 # _html is used for testing
@@ -38,6 +40,7 @@ def scrape(date, refresh=False, _html=None):
     for table in tables:
         artist = table.find("font", color="#000000").string.strip()
         title = table.find("font", size="+1").string.strip()
+        title, album = parse_title(title)
         playtime = datetime.datetime.strptime(
             table.find("font", size="-1").string.strip(), TIME_FORMAT
         ).time()
@@ -48,6 +51,7 @@ def scrape(date, refresh=False, _html=None):
         yield {
             "artist": artist,
             "title": title,
+            "album": album,
             "time": datetime.datetime(
                 date.year,
                 date.month,
@@ -94,3 +98,12 @@ def day_range(start, end):
     while current <= end:
         yield current
         current += datetime.timedelta(days=1)
+
+
+def parse_title(title):
+    "Extract title and album name from title string"
+    match = ALBUM_RE.match(title)
+    if not match:
+        return title, None
+
+    return match.groups()

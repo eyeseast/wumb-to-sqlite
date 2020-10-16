@@ -3,7 +3,7 @@ import pathlib
 import pytest
 from click.testing import CliRunner
 from wumb_to_sqlite.cli import cli
-from wumb_to_sqlite.scrape import scrape, day_range
+from wumb_to_sqlite.scrape import scrape, day_range, parse_title
 
 here = pathlib.Path(__file__).parent
 
@@ -42,3 +42,20 @@ def test_scrape_date(page):
     assert set(song.keys()) == {"artist", "time", "title"}
 
     assert song["artist"] == "Billy Strange"
+
+
+def test_parse_album():
+    text = "Stay on the Ride (from Children Running Through)"
+
+    title, album = parse_title(text)
+    assert title == "Stay on the Ride"
+    assert album == "Children Running Through"
+
+
+def test_parse_no_album():
+    text = "Time for My Mind"
+    title, album = parse_title(text)
+
+    assert title == text
+    assert album == None
+
