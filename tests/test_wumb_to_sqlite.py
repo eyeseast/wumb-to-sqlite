@@ -39,9 +39,11 @@ def test_scrape_date(page):
     song = playlist[0]
 
     assert isinstance(song, dict)
-    assert set(song.keys()) == {"artist", "time", "title"}
+    assert set(song.keys()) == {"artist", "album", "time", "title"}
 
     assert song["artist"] == "Billy Strange"
+    assert song["title"] == "Diesel Smoke Dangerous Curves"
+    assert song["album"] == "More Hillbilly Music for Less Money"
 
 
 def test_parse_album():
