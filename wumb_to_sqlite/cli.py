@@ -25,7 +25,7 @@ def cli():
 @click.option("--since", type=click.DateTime(formats))
 @click.option("--until", type=click.DateTime(formats))
 @click.option("--delay", type=click.INT, default=1, show_default=True)
-@click.option("--refresh", type=click.BOOL, default=False)
+@click.option("--refresh", is_flag=True, default=False)
 def save_playlists(
     database, table_name, date=None, since=None, until=None, delay=1, refresh=False
 ):
